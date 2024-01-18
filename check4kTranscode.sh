@@ -7,7 +7,6 @@ get_actual_4k_transcode_count() {
     local tautulli_apikey="$TAUTULLI_APIKEY" 
     local tautulli_url="$TAUTULLI_URL/api/v2" 
 
-
     local api_endpoint="${tautulli_url}?cmd=get_activity&apikey=${tautulli_apikey}"
     local response=$(curl -s "${api_endpoint}")
     # Count the number of 4K transcodes
