@@ -1,16 +1,15 @@
 #!/bin/bash
 
 # Path to the kill_script.py
-killscript_path="/config/killscript.py"
+killscript_path="<PATH KILLSCRIPT>" #Change it to the path of killscript
 
 get_actual_4k_transcode_count() {
-    local tautulli_apikey="$TAUTULLI_APIKEY" #"$TAUTULLI_APIKEY" #"YOUR_TAUTULLI_API_KEY"
-    local tautulli_url="$TAUTULLI_URL/api/v2" #"http://your-tautulli-host:8181/api/v2"
+    local tautulli_apikey="$TAUTULLI_APIKEY" 
+    local tautulli_url="$TAUTULLI_URL/api/v2" 
 
 
     local api_endpoint="${tautulli_url}?cmd=get_activity&apikey=${tautulli_apikey}"
     local response=$(curl -s "${api_endpoint}")
-    echo "VOILA : $response" 1>&2
     # Count the number of 4K transcodes
     local transcode_count=$(echo "$response" | python -c "import sys, json
 data = json.load(sys.stdin)
