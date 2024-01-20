@@ -70,7 +70,7 @@ resolution_hierarchy = {
     "4k": 4
 }
 
-def check_transcoding(res_pairs, args_remaining, combine_ratio, tautulli_url, tautulli_apikey):
+def check_transcoding(res_pairs, args_remaining, combine_ratio, verbose, tautulli_url, tautulli_apikey):
     """
     Checks the number of active transcodings for each specified resolution and
     calls an external script (kill_script.py) if the number of transcodings 
@@ -109,11 +109,13 @@ def check_transcoding(res_pairs, args_remaining, combine_ratio, tautulli_url, ta
                     resolution_count[current_res] += combined_count
                     resolution_count[next_lower_res] -= combined_count * combine_ratio
                     combined_count *= combine_ratio
-                    print(f'Combined {combined_count} counts of {next_lower_res} into {current_res}. Remaining {next_lower_res}: {resolution_count[next_lower_res]}')
+                    if verbose:
+                        print(f'Combined {combined_count} counts of {next_lower_res} into {current_res}. Remaining {next_lower_res}: {resolution_count[next_lower_res]}')
         for resolution, limitation in res_pairs:
             limitation = int(limitation)
             transcode_count = resolution_count[resolution]
-            print(f"current streams : {resolution} = {transcode_count} / {limitation}")
+            if verbose:
+                print(f"current streams : {resolution} = {transcode_count} / {limitation}")
             if transcode_count >= limitation:
                 print(f"{limitation} streams are already transcoding {resolution} videos. Calling killscript")
                 killscript = ['python', killscript_name] + args_remaining
@@ -173,6 +175,7 @@ def main():
     parser.add_argument('-c', '--combine', dest='combine', type=int, default=0,
                         help='Specify a ratio at which resolution counts need to be combined : 2 means that 2 720p transcodes are worth \
                                 1 superior (here 1080p) transcode')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Increase output verbosity')
     args, args_remaining = parser.parse_known_args()
     if args.combine < 1 and args.combine != 0:
         print("Invalid combine ratio. The ratio must be a positive integer.", file=sys.stderr)
@@ -182,13 +185,14 @@ def main():
         print(f"There is a different number of resolution and limitation arguments. \
                 Each resolution should have a corresponding limitation. \
                 {len(args.resolution)} / {len(args.limitation)}", file=sys.stderr)
-        for resolution, limitation in resolutions_tocheck:
-            print(f"res = {resolution} / limit = {limitation}")
-        return
+        if args.verbose:
+            for resolution, limitation in resolutions_tocheck:
+                print(f"res = {resolution} / limit = {limitation}")
+            sys.exit(1)
 
     if not tautulli_apikey or not tautulli_url:
         print("Tautulli API key or URL is not set. Please check your configuration.", file=sys.stderr)
-        return
+        sys.exit(1)
     
     try:
         validate_resolutions(resolutions_tocheck)
@@ -198,7 +202,7 @@ def main():
     except Exception as e:
         print(f"An unexpected error occurred: {e}", file=sys.stderr)
         sys.exit(1)
-    result = check_transcoding(resolutions_tocheck, args_remaining, args.combine, tautulli_url, tautulli_apikey)
+    result = check_transcoding(resolutions_tocheck, args_remaining, args.combine, args.verbose, tautulli_url, tautulli_apikey)
     if result == 0:
         print("Limitations are all within limits.")
         sys.exit(0)
