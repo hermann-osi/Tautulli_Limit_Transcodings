@@ -1,4 +1,4 @@
-# Tautulli-check-only-one-transcoding-4K
+# Limit transcodings
 This is a little script meant to be an add-on to kill_script.py : https://github.com/blacktwin/JBOPS/blob/master/killstream/kill_stream.py
 You put limite_transcodes.py in the same folder as kill_script.py and then you can directly set it in Tautulli.
 
