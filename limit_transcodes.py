@@ -168,6 +168,9 @@ def main():
                         help='Specify a ratio at which resolution counts need to be combined : 2 means that 2 720p transcodes are worth \
                                 1 superior (here 1080p) transcode')
     args, args_remaining = parser.parse_known_args()
+    if args.combine < 1 and args.combine != 0:
+        print("Invalid combine ratio. The ratio must be a positive integer.", file=sys.stderr)
+        sys.exit(1)
     resolutions_tocheck = list(zip(args.resolution, args.limitation))
     if len(args.resolution) != len(args.limitation):
         print(f"There is a different number of resolution and limitation arguments. \
