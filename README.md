@@ -4,5 +4,4 @@ You put limite_transcodes.py in the same folder as kill_script.py and then you c
 
 # Examples :
 
-https://res.cloudinary.com/dmkxca49o/image/upload/c_pad,b_auto:predominant,fl_preserve_transparency/v1705765270/Capture_d_écran_2024-01-20_à_16.39.24_tlljvg.jpg?_s=public-apps![image](https://github.com/hermann-osi/Tautulli_Limit_Transcodings/assets/107543367/dacdb68d-a5c5-4c80-a774-a3c13fb4c373)
-
+![alt text](http://url/to/img.png](https://res.cloudinary.com/dmkxca49o/image/upload/c_pad,b_auto:predominant,fl_preserve_transparency/v1705765270/Capture_d_écran_2024-01-20_à_16.39.24_tlljvg.jpg?_s=public-apps)
