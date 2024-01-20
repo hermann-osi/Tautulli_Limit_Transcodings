@@ -188,7 +188,7 @@ def main():
         if args.verbose:
             for resolution, limitation in resolutions_tocheck:
                 print(f"res = {resolution} / limit = {limitation}")
-            sys.exit(1)
+        sys.exit(1)
 
     if not tautulli_apikey or not tautulli_url:
         print("Tautulli API key or URL is not set. Please check your configuration.", file=sys.stderr)
@@ -204,7 +204,7 @@ def main():
         sys.exit(1)
     result = check_transcoding(resolutions_tocheck, args_remaining, args.combine, args.verbose, tautulli_url, tautulli_apikey)
     if result == 0:
-        print("Limitations are all within limits.")
+        print("Transcodings are all within limits.")
         sys.exit(0)
     elif result == 1:
         print("A limitation has been reached so killscript has been launched.")
