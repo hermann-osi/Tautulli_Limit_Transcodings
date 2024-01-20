@@ -89,18 +89,20 @@ def check_transcoding(res_pairs, args_remaining, combine_ratio, tautulli_url, ta
             if session['transcode_decision'] == 'transcode' and session['video_resolution'] in resolution_count:
                 resolution_count[session['video_resolution']] += 1
         if combine_ratio > 0:
-            sorted_resolutions = sorted(allowed_resolutions, key=lambda x: resolution_hierarchy[x])
-
+            user_resolutions = [res for res, _ in res_pairs]  # Get resolutions specified by the user
+            # Filter allowed_resolutions to only include those specified by the user
+            relevant_resolutions = [res for res in allowed_resolutions if res in user_resolutions]
+            sorted_resolutions = sorted(relevant_resolutions, key=lambda x: resolution_hierarchy[x])
             for i in range(len(sorted_resolutions) - 1, 0, -1):
                 current_res = sorted_resolutions[i]
                 next_lower_res = sorted_resolutions[i - 1]
                 # Combine lower resolution count into the current resolution
-                combined_count = resolution_count[next_lower_res] // combine_ratio
-                resolution_count[current_res] += combined_count
-                resolution_count[next_lower_res] -= combined_count * combine_ratio
-                combined_count *=  combine_ratio
-                print(f'Combined {combined_count} counts of {next_lower_res} into {current_res}. Remaining {next_lower_res}: {resolution_count[next_lower_res]}')
-
+                if current_res in user_resolutions and next_lower_res in user_resolutions:
+                    combined_count = resolution_count[next_lower_res] // combine_ratio
+                    resolution_count[current_res] += combined_count
+                    resolution_count[next_lower_res] -= combined_count * combine_ratio
+                    combined_count *= combine_ratio
+                    print(f'Combined {combined_count} counts of {next_lower_res} into {current_res}. Remaining {next_lower_res}: {resolution_count[next_lower_res]}')
         for resolution, limitation in res_pairs:
             limitation = int(limitation)
             transcode_count = resolution_count[resolution]
