@@ -89,20 +89,17 @@ def check_transcoding(res_pairs, args_remaining, combine_ratio, tautulli_url, ta
             if session['transcode_decision'] == 'transcode' and session['video_resolution'] in resolution_count:
                 resolution_count[session['video_resolution']] += 1
         if combine_ratio > 0:
-            print(f'Combine activated with ratio {combine_ratio} (480->720) : 720 = {resolution_count["720"]} / 480 = {resolution_count["480"]}')
-            resolution_count["720"] += resolution_count["480"] // combine_ratio
-            resolution_count["480"] %= combine_ratio
-            print(f'Combine activated - post combine : 720 = {resolution_count["720"]} / 480 = {resolution_count["480"]}')
-         
-            print(f'Combine activated with ratio {combine_ratio} (720->1080) : 1080 = {resolution_count["1080"]} / 720 = {resolution_count["720"]}')
-            resolution_count["1080"] += resolution_count["720"] // combine_ratio
-            resolution_count["720"] %= combine_ratio
-            print(f'Combine activated - post combine : 1080 = {resolution_count["1080"]} / 720 = {resolution_count["720"]}')
-         
-            print(f'Combine activated with ratio {combine_ratio} (1080->4k) : 4k = {resolution_count["4k"]} / 1080 = {resolution_count["1080"]}')
-            resolution_count["4k"] += resolution_count["1080"] // combine_ratio
-            resolution_count["1080"] %= combine_ratio
-            print(f'Combine activated - post combine : 4k = {resolution_count["4k"]} / 1080 = {resolution_count["1080"]}')
+            sorted_resolutions = sorted(allowed_resolutions, key=lambda x: resolution_hierarchy[x])
+
+            for i in range(len(sorted_resolutions) - 1, 0, -1):
+                current_res = sorted_resolutions[i]
+                next_lower_res = sorted_resolutions[i - 1]
+                # Combine lower resolution count into the current resolution
+                combined_count = resolution_count[next_lower_res] // combine_ratio
+                resolution_count[current_res] += combined_count
+                resolution_count[next_lower_res] -= combined_count * combine_ratio
+                combined_count *=  combine_ratio
+                print(f'Combined {combined_count} counts of {next_lower_res} into {current_res}. Remaining {next_lower_res}: {resolution_count[next_lower_res]}')
 
         for resolution, limitation in res_pairs:
             limitation = int(limitation)
