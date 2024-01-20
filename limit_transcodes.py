@@ -63,6 +63,13 @@ import json
 killscript_name = "kill_script.py"
 allowed_resolutions = ["4k", "1080", "720", "480"]
 
+resolution_hierarchy = {
+    "480": 1,
+    "720": 2,
+    "1080": 3,
+    "4k": 4
+}
+
 def check_transcoding(res_pairs, args_remaining, combine_ratio, tautulli_url, tautulli_apikey):
     """
     Checks the number of active transcodings for each specified resolution and
