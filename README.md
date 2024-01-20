@@ -1,2 +1,8 @@
 # Tautulli-check-only-one-transcoding-4K
-Little script for Tautulli to check if more than one transcoding 4K is playing and then call killscript
+This is a little script meant to be an add-on to kill_script.py : https://github.com/blacktwin/JBOPS/blob/master/killstream/kill_stream.py
+You put limite_transcodes.py in the same folder as kill_script.py and then you can directly set it in Tautulli.
+
+# Examples :
+
+https://res.cloudinary.com/dmkxca49o/image/upload/c_pad,b_auto:predominant,fl_preserve_transparency/v1705765270/Capture_d_écran_2024-01-20_à_16.39.24_tlljvg.jpg?_s=public-apps![image](https://github.com/hermann-osi/Tautulli_Limit_Transcodings/assets/107543367/dacdb68d-a5c5-4c80-a774-a3c13fb4c373)
+
