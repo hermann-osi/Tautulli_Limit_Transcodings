@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 """
 Description: Checks if the limit of current transcoding has been reached and calls
@@ -23,6 +24,8 @@ Tautulli > Settings > Notification Agents > New Script > Script Arguments:
  -r, --resolution : to set the resolution to be monitored
  -l, --limitation : to set the limitation of transcoding from set resolution
  Then you put the kill_script.py regular arguments
+ -c, --limitation : (optional) Allow to combine with a defined ratio all
+                    resolutions
 
 Example : 
  -r 720 -l3 --jbop[...] => Will trigger killscript if there are 3 720p transcodings
@@ -30,6 +33,10 @@ Example :
  The triggering stream is taken into account during the check so you may add it to
  your limitations :
   -r 4k -l2 if triggered by new 4K transcodes to limit 4K transcodes to 1 maximum
+ Combine ratio : 
+  -r 4k -l2 -r 1080 -l3 -c2 => Will trigger if there are 2 4K transcodes, 2 1080p
+  transcodes or a combination of 1080p/4K transcodes with 2 1080p being worth 1 4K.
+  That means 2 1080p and 1 4K will trigger it.
 
 Full examples :
     -r 4k -l2 --jbop stream --username "admin" --sessionId {session_id} 
@@ -54,9 +61,9 @@ import subprocess
 import json
 
 killscript_name = "kill_script.py"
-allowed_resolutions = ["4k", "1080", "720"]
+allowed_resolutions = ["4k", "1080", "720", "480"]
 
-def check_transcoding(res_pairs, args_remaining, tautulli_url, tautulli_apikey):
+def check_transcoding(res_pairs, args_remaining, combine_ratio, tautulli_url, tautulli_apikey):
     """
     Checks the number of active transcodings for each specified resolution and
     calls an external script (kill_script.py) if the number of transcodings 
@@ -77,12 +84,30 @@ def check_transcoding(res_pairs, args_remaining, tautulli_url, tautulli_apikey):
         response = requests.get(api_endpoint)
         response.raise_for_status()
         data = response.json()
+        resolution_count = {res: 0 for res in allowed_resolutions}
+        for session in data['response']['data']['sessions']:
+            if session['transcode_decision'] == 'transcode' and session['video_resolution'] in resolution_count:
+                resolution_count[session['video_resolution']] += 1
+        if combine_ratio > 0:
+            print(f'Combine activated with ratio {combine_ratio} (480->720) : 720 = {resolution_count["720"]} / 480 = {resolution_count["480"]}')
+            resolution_count["720"] += resolution_count["480"] // combine_ratio
+            resolution_count["480"] %= combine_ratio
+            print(f'Combine activated - post combine : 720 = {resolution_count["720"]} / 480 = {resolution_count["480"]}')
+            print(f'Combine activated with ratio {combine_ratio} (720->1080) : 1080 = {resolution_count["1080"]} / 720 = {resolution_count["720"]}')
+            resolution_count["1080"] += resolution_count["720"] // combine_ratio
+            resolution_count["720"] %= combine_ratio
+            print(f'Combine activated - post combine : 1080 = {resolution_count["1080"]} / 720 = {resolution_count["720"]}')
+            print(f'Combine activated with ratio {combine_ratio} (1080->4k) : 4k = {resolution_count["4k"]} / 1080 = {resolution_count["1080"]}')
+            resolution_count["4k"] += resolution_count["1080"] // combine_ratio
+            resolution_count["1080"] %= combine_ratio
+            print(f'Combine activated - post combine : 4k = {resolution_count["4k"]} / 1080 = {resolution_count["1080"]}')
+
         for resolution, limitation in res_pairs:
             limitation = int(limitation)
-            transcode_count = sum(
-                1 for session in data['response']['data']['sessions']
-                if session['video_resolution'] == resolution and session['transcode_decision'] == 'transcode'
-            )
+            transcode_count = resolution_count[resolution]
+            #transcode_count = sum(
+            #    1 for session in data['response']['data']['sessions']
+            #    if session['video_resolution'] == resolution and session['transcode_decision'] == 'transcode')
             print(f"current streams : {resolution} = {transcode_count} / {limitation}")
             if transcode_count >= limitation:
                 print(f"{limitation} streams are already transcoding {resolution} videos. Calling killscript")
@@ -140,6 +165,9 @@ def main():
                                 -l2 -r 720 -l3 to limit 4k transcodes to 1, 1080p to 2, 720p to 3 ')
     parser.add_argument('-l', '--limitation', dest='limitation', action='append', default=[],
                         help='Specify the limitation to control the associated resolution')
+    parser.add_argument('-c', '--combine', dest='combine', type=int, default=0,
+                        help='Specify a ratio at which resolution counts need to be combined : 2 means that 2 720p transcodes are worth \
+                                1 superior (here 1080p) transcode')
     args, args_remaining = parser.parse_known_args()
     resolutions_tocheck = list(zip(args.resolution, args.limitation))
     if len(args.resolution) != len(args.limitation):
@@ -154,6 +182,8 @@ def main():
         print("Tautulli API key or URL is not set. Please check your configuration.", file=sys.stderr)
         return
     
+    #validate_resolutions(resolutions_tocheck)
+    #result = check_transcoding(resolutions_tocheck, args_remaining, tautulli_url, tautulli_apikey)
     try:
         validate_resolutions(resolutions_tocheck)
     except ValueError as e:
@@ -162,7 +192,7 @@ def main():
     except Exception as e:
         print(f"An unexpected error occurred: {e}", file=sys.stderr)
         sys.exit(1)
-    result = check_transcoding(resolutions_tocheck, args_remaining, tautulli_url, tautulli_apikey)
+    result = check_transcoding(resolutions_tocheck, args_remaining, args.combine, tautulli_url, tautulli_apikey)
     if result == 0:
         print("Limitations are all within limits.")
         sys.exit(0)
@@ -172,6 +202,5 @@ def main():
     elif result == -1:
         print("The script has finished with errors. The check may not have been done properly.", file=sys.stderr)
         sys.exit(1)
-      
 if __name__ == "__main__":
     main()
