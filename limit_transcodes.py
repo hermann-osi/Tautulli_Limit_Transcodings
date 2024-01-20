@@ -93,10 +93,12 @@ def check_transcoding(res_pairs, args_remaining, combine_ratio, tautulli_url, ta
             resolution_count["720"] += resolution_count["480"] // combine_ratio
             resolution_count["480"] %= combine_ratio
             print(f'Combine activated - post combine : 720 = {resolution_count["720"]} / 480 = {resolution_count["480"]}')
+         
             print(f'Combine activated with ratio {combine_ratio} (720->1080) : 1080 = {resolution_count["1080"]} / 720 = {resolution_count["720"]}')
             resolution_count["1080"] += resolution_count["720"] // combine_ratio
             resolution_count["720"] %= combine_ratio
             print(f'Combine activated - post combine : 1080 = {resolution_count["1080"]} / 720 = {resolution_count["720"]}')
+         
             print(f'Combine activated with ratio {combine_ratio} (1080->4k) : 4k = {resolution_count["4k"]} / 1080 = {resolution_count["1080"]}')
             resolution_count["4k"] += resolution_count["1080"] // combine_ratio
             resolution_count["1080"] %= combine_ratio
@@ -105,9 +107,6 @@ def check_transcoding(res_pairs, args_remaining, combine_ratio, tautulli_url, ta
         for resolution, limitation in res_pairs:
             limitation = int(limitation)
             transcode_count = resolution_count[resolution]
-            #transcode_count = sum(
-            #    1 for session in data['response']['data']['sessions']
-            #    if session['video_resolution'] == resolution and session['transcode_decision'] == 'transcode')
             print(f"current streams : {resolution} = {transcode_count} / {limitation}")
             if transcode_count >= limitation:
                 print(f"{limitation} streams are already transcoding {resolution} videos. Calling killscript")
@@ -182,8 +181,6 @@ def main():
         print("Tautulli API key or URL is not set. Please check your configuration.", file=sys.stderr)
         return
     
-    #validate_resolutions(resolutions_tocheck)
-    #result = check_transcoding(resolutions_tocheck, args_remaining, tautulli_url, tautulli_apikey)
     try:
         validate_resolutions(resolutions_tocheck)
     except ValueError as e:
