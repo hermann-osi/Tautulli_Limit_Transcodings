@@ -203,7 +203,7 @@ def main():
         sys.exit(1)
     result = check_transcoding(resolutions_tocheck, args_remaining, args.combine, args.verbose, tautulli_url, tautulli_apikey)
     if result == 0:
-        print("Limitations are all within limits.")
+        print("Transcodings are all within limits.")
         sys.exit(0)
     elif result == 1:
         print("A limitation has been reached so kill_stream has been launched.")
