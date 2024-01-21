@@ -20,7 +20,9 @@ To set the arguments (-r resolution -l nbr of streams before triggering killscri
 
 Notice the limitation is set to 2 and not 1 because the triggering stream is taken into account. If we set it to 1, no more 4k transcoding will be possible but we set it to 2 so the first one will be allowed and second one will trigger killscript.
 
-You can also use the optional argument "-c, --combine" with a value to activate the combine feature. This will allow the script to combine all limitations according to the given ratio. "-c 2" will mean that every resolution is worth 2 times the resolution below (2 720p transcodings will be equal to 1 1080p transcoding). This can be used to have a coherent CPU load limit instead of covering every case individually. 
+You can also use the optional argument "-c, --combine" with a value to activate the combine feature. This will allow the script to combine all limitations according to the given ratio. "-c 2" will mean that every resolution is worth 2 times the resolution below (2 720p transcodings will be equal to 1 1080p transcoding). 
+This can be used to have a coherent CPU load limit instead of covering every case individually. 
+
 Be aware that it will count lower resolutions 2 times. For instance "-r 1080 -l2 -r 720 -l3 -c2" with 3 720p transcodings will count as : 3 720p transcodes and 1 1080p transcode to allow restriction by their own limitation and restriction by the higher resolution limitation. This means the script will be more restrictive with the "-c, --combine" option.
 
 -v, --verbose is used to have more logs from Tautulli during the execution of the script.
