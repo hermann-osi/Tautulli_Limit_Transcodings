@@ -41,6 +41,15 @@ Example :
   trigger since lower resolutions are counted for their own limits but also for the
   superior resolution's limit.
 
+  Again, be aware that using the "-c, --combine" option will count lower resolution 
+  streams both for their own limitation and towards the higher resolution's limit, 
+  making the script more restrictive. For example, with "-r 1080 -l2 -r 720 -l3 -c2", 
+  3 streams of 720p will be considered as 3 720p streams and additionally contribute 
+  to the 1080p count. This means the script will likely trigger the kill_stream sooner, 
+  as it takes into account the combined load on the server. I recommend you to test 
+  this option in your environment to ensure it aligns with your server's capabilities 
+  and your streaming requirements.
+
 Full examples :
     -r 4k -l2 --jbop stream --username "admin" --sessionId {session_id} 
         --killMessage "There is already another 4K stream."
