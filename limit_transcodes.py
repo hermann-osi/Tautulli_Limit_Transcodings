@@ -98,6 +98,8 @@ def check_transcoding(res_pairs, args_remaining, combine_ratio, verbose, tautull
             if session['transcode_decision'] == 'transcode' and session['video_resolution'] in resolution_count:
                 resolution_count[session['video_resolution']] += 1
         if combine_ratio > 0:
+            if verbose:
+                print("Combine ratio activated, lower resolutions may be counted twice (once for their own limitation, once for higher resolutions limitations)")
             user_resolutions = [res for res, _ in res_pairs]  # Get resolutions specified by the user
             # Filter allowed_resolutions to only include those specified by the user
             relevant_resolutions = [res for res in allowed_resolutions if res in user_resolutions]
@@ -109,9 +111,9 @@ def check_transcoding(res_pairs, args_remaining, combine_ratio, verbose, tautull
                 if current_res in user_resolutions and next_lower_res in user_resolutions:
                     combined_count = resolution_count[next_lower_res] // combine_ratio
                     resolution_count[current_res] += combined_count
-                    combined_count *= combine_ratio
+                    tot_combined_count = combined_count * combine_ratio
                     if verbose:
-                        print(f'Combined {combined_count} counts of {next_lower_res} into {current_res}. Remaining {next_lower_res}: {resolution_count[next_lower_res]}')
+                        print(f'Combined {tot_combined_count} counts of {next_lower_res} into {combined_count} counts of {current_res}. Remaining {next_lower_res}: {resolution_count[next_lower_res]}')
         for resolution, limitation in res_pairs:
             limitation = int(limitation)
             transcode_count = resolution_count[resolution]
