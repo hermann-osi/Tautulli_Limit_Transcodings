@@ -19,3 +19,5 @@ To set the arguments (-r resolution -l nbr of streams before triggering killscri
 <img src="https://res.cloudinary.com/dmkxca49o/image/upload/v1705766544/Capture_d_%C3%A9cran_2024-01-20_%C3%A0_17.02.07_fskkqb.png" width="400" height="400">
 
 Notice the limitation is set to 2 and not 1 because the triggering stream is taken into account. If we set it to 1, no more 4k transcoding will be possible but we set it to 2 so the first one will be allowed and second one will trigger killscript.
+
+You can also use the optional argument "-c, --combine" with a value to activate the combine feature. This will allow the script to combine all limitations according to the given ratio. "-c 2" will mean that every resolution is worth 2 times the resolution below (2 720p transcodings will be equal to 1 1080p transcoding). This can be used to have a coherent CPU load limit instead of covering every case individually. 
