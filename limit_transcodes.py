@@ -33,10 +33,13 @@ Example :
  The triggering stream is taken into account during the check so you may add it to
  your limitations :
   -r 4k -l2 if triggered by new 4K transcodes to limit 4K transcodes to 1 maximum
+  
  Combine ratio : 
   -r 4k -l2 -r 1080 -l3 -c2 => Will trigger if there are 2 4K transcodes, 2 1080p
   transcodes or a combination of 1080p/4K transcodes with 2 1080p being worth 1 4K.
-  That means 2 1080p and 1 4K will trigger it.
+  That means 2 1080p and 1 4K will trigger it. This make the script more likely to
+  trigger since lower resolutions are counted for their own limits but also for the
+  superior resolution's limit.
 
 Full examples :
     -r 4k -l2 --jbop stream --username "admin" --sessionId {session_id} 
@@ -106,7 +109,6 @@ def check_transcoding(res_pairs, args_remaining, combine_ratio, verbose, tautull
                 if current_res in user_resolutions and next_lower_res in user_resolutions:
                     combined_count = resolution_count[next_lower_res] // combine_ratio
                     resolution_count[current_res] += combined_count
-                    resolution_count[next_lower_res] -= combined_count * combine_ratio
                     combined_count *= combine_ratio
                     if verbose:
                         print(f'Combined {combined_count} counts of {next_lower_res} into {current_res}. Remaining {next_lower_res}: {resolution_count[next_lower_res]}')
