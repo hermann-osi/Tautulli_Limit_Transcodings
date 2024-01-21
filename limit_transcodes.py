@@ -2,7 +2,7 @@
 
 """
 Description: Checks if the limit of current transcoding has been reached and calls
-killscript : https://github.com/blacktwin/JBOPS/blob/master/killstream/kill_stream.py
+kill_stream : https://github.com/blacktwin/JBOPS/blob/master/killstream/kill_stream.py
 to terminate the triggering stream.
 Author : BalleRegente 
 
@@ -23,12 +23,12 @@ Script Arguments:
 Tautulli > Settings > Notification Agents > New Script > Script Arguments:
  -r, --resolution : to set the resolution to be monitored
  -l, --limitation : to set the limitation of transcoding from set resolution
- Then you put the kill_script.py regular arguments
+ Then you put the kill_stream.py regular arguments
  -c, --limitation : (optional) Allow to combine with a defined ratio all
                     resolutions
 
 Example : 
- -r 720 -l3 --jbop[...] => Will trigger killscript if there are 3 720p transcodings
+ -r 720 -l3 --jbop[...] => Will trigger kill_stream if there are 3 720p transcodings
  -r 1080 -l3 -r 720 -l4 => Will trigger if there are 3 1080p or 4 720p transcodings
  The triggering stream is taken into account during the check so you may add it to
  your limitations :
@@ -51,8 +51,6 @@ Full examples :
     1080p transcodes.
 
 """
-
-
 import requests
 import os
 import sys
@@ -60,7 +58,8 @@ import argparse
 import subprocess
 import json
 
-killscript_name = "kill_script.py"
+killstream_name = "kill_stream.py" # Edit here if you called kill_stream a different name or if you
+                                   # want to trigger another script instead
 allowed_resolutions = ["4k", "1080", "720", "480"]
 
 resolution_hierarchy = {
@@ -73,11 +72,11 @@ resolution_hierarchy = {
 def check_transcoding(res_pairs, args_remaining, combine_ratio, verbose, tautulli_url, tautulli_apikey):
     """
     Checks the number of active transcodings for each specified resolution and
-    calls an external script (kill_script.py) if the number of transcodings 
+    calls an external script (kill_stream.py) if the number of transcodings 
     exceeds the limitation.
 
     :param res_pairs: List of pairs (resolution, limitation).
-    :param args_remaining: Remaining arguments to pass to the killscript.
+    :param args_remaining: Remaining arguments to pass to the kill_stream.
     :param tautulli_url: URL of the Tautulli API.
     :param tautulli_apikey: API key for Tautulli.
     :return: 0 if all limitations are respected
@@ -117,9 +116,9 @@ def check_transcoding(res_pairs, args_remaining, combine_ratio, verbose, tautull
             if verbose:
                 print(f"current streams : {resolution} = {transcode_count} / {limitation}")
             if transcode_count >= limitation:
-                print(f"{limitation} streams are already transcoding {resolution} videos. Calling killscript")
-                killscript = ['python', killscript_name] + args_remaining
-                process = subprocess.run(killscript, text=True, capture_output=True)
+                print(f"{limitation} streams are already transcoding {resolution} videos. Calling kill_stream")
+                kill_stream = ['python', killstream_name] + args_remaining
+                process = subprocess.run(kill_stream, text=True, capture_output=True)
                 print(process.stdout)
                 if process.stderr:
                     print(process.stderr)
@@ -157,15 +156,15 @@ def validate_resolutions(res_pairs):
 def main():
     """
     Main function that parses arguments, validates resolutions, and checks transcoding
-    limitations using Tautulli's API. This script triggers a killscript if limitations 
+    limitations using Tautulli's API. This script triggers a kill_stream if limitations 
     are exceeded.
     """
 
     tautulli_apikey = os.getenv('TAUTULLI_APIKEY')
     tautulli_url = os.getenv('TAUTULLI_URL') + "/api/v2"
 
-    parser = argparse.ArgumentParser(description='This script needs to be in the same location as killscript.py. \
-            It will trigger killscript if it detects a certain amount of transcoding. For instance with --resolution 1080 -l2 \
+    parser = argparse.ArgumentParser(description='This script needs to be in the same location as kill_stream.py. \
+            It will trigger kill_stream if it detects a certain amount of transcoding. For instance with --resolution 1080 -l2 \
             it will trigger if there already 2 streams (counting the current one) transcoding from 1080p.')
     parser.add_argument('-r', '--resolution', dest='resolution', action='append', default=[],
                         help='Specify the resolution to control [4k,1080,720]. Can be used multiple times like this : -r 4k -l1 -r 1080 \
@@ -204,10 +203,10 @@ def main():
         sys.exit(1)
     result = check_transcoding(resolutions_tocheck, args_remaining, args.combine, args.verbose, tautulli_url, tautulli_apikey)
     if result == 0:
-        print("Transcodings are all within limits.")
+        print("Limitations are all within limits.")
         sys.exit(0)
     elif result == 1:
-        print("A limitation has been reached so killscript has been launched.")
+        print("A limitation has been reached so kill_stream has been launched.")
         sys.exit(0)
     elif result == -1:
         print("The script has finished with errors. The check may not have been done properly.", file=sys.stderr)
