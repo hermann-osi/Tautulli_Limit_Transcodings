@@ -20,6 +20,8 @@ To set the arguments (-r resolution -l nbr of streams before triggering killscri
 
 Notice the limitation is set to 2 and not 1 because the triggering stream is taken into account. If we set it to 1, no more 4k transcoding will be possible but we set it to 2 so the first one will be allowed and second one will trigger killscript.
 
+# Combine argument
+
 You can also use the optional argument "-c, --combine" with a value to activate the combine feature. This will allow the script to combine all limitations according to the given ratio. "-c 2" will mean that every resolution is worth 2 times the resolution below (so two 720p transcodings will be equal to one 1080p transcoding). 
 This can be used to have a coherent CPU load limit instead of covering every case individually. 
 
