@@ -23,6 +23,6 @@ Notice the limitation is set to 2 and not 1 because the triggering stream is tak
 You can also use the optional argument "-c, --combine" with a value to activate the combine feature. This will allow the script to combine all limitations according to the given ratio. "-c 2" will mean that every resolution is worth 2 times the resolution below (2 720p transcodings will be equal to 1 1080p transcoding). 
 This can be used to have a coherent CPU load limit instead of covering every case individually. 
 
-Be aware that it will count lower resolutions 2 times. For instance "-r 1080 -l2 -r 720 -l3 -c2" with 3 720p transcodings will count as : 3 720p transcodes and 1 1080p transcode to allow restriction by their own limitation and restriction by the higher resolution limitation. This means the script will be more restrictive with the "-c, --combine" option.
+Be aware that when using the "-c, --combine" option, lower resolution streams are effectively counted twice: once for their own resolution and once as part of the combined count for the next higher resolution. For instance, using "-r 1080 -l2 -r 720 -l3 -c2" with 3 720p transcoding streams will result in these streams being counted as 3 720p transcodes and additionally as 1 1080p transcode due to the combining ratio. This behavior makes the script more restrictive, as it will trigger the kill script based on the limitations of both the individual resolution and the combined higher resolution.
 
 -v, --verbose is used to have more logs from Tautulli during the execution of the script.
